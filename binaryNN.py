@@ -52,7 +52,7 @@ val_writer = tf.summary.FileWriter('./logdir/val', accuracy.graph)
 saver = tf.train.Saver()
 
 batch_size = 1000
-epochs = 10
+epochs = 500
 with tf.Session() as sess:
     print('*****************Training Start!*****************')
     sess.run(tf.global_variables_initializer())
