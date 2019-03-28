@@ -65,7 +65,7 @@ val_writer = tf.summary.FileWriter('./logdir/val', accuracy.graph)
 saver = tf.train.Saver()
 
 # set hyper-parameters
-batch_size = 100
+batch_size = 1000
 epochs = 500
 
 # training
