@@ -33,10 +33,12 @@ pred = binary_layer.dense(x, units=10)
 loss = tf.losses.softmax_cross_entropy(outputs, pred)
 tf.summary.scalar('loss', loss)
 
-l_r = 1e-4
+start_lr = 1e-3
+global_step = tf.Variable(0, trainable=False)
+l_r = tf.train.exponential_decay(start_lr, global_step, 5500, 0.96, staircase=True)
 optimizer = tf.train.AdamOptimizer(learning_rate=l_r)
 grads = optimizer.compute_gradients(loss, tf.trainable_variables())
-train = optimizer.apply_gradients(grads)
+train = optimizer.apply_gradients(grads, global_step=global_step)
 
 correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(outputs, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
