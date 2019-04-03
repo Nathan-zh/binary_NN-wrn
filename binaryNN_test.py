@@ -24,24 +24,25 @@ pred = binary_layer.dense(x, units=10)
 
 correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(outputs, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
-vars = tf.trainable_variables()
+#vars = tf.trainable_variables()
 
 print('*****************Test stage*****************')
 saver = tf.train.Saver()
 
 with tf.Session() as sess:
     saver.restore(sess, './model/final.ckpt')
-    vars_vals = sess.run(vars)
     '''
+    vars_vals = sess.run(vars)
     # save model parameters to files
     for i in range(len(vars)):
+
         if i == 0:
             para = vars_vals[i].transpose((3, 2, 0, 1)).reshape([4, 49])
         else:
             para = vars_vals[i]
         filename = vars[i].name
         filename = filename.replace('/', ':')
-        np.savetxt('./data/{}.txt'.format(filename), para)
+        np.savetxt('./{}.txt'.format(filename), para)
     '''
     test_x = np.reshape(mnist.test.images, [10000, 28, 28, 1])
     test_y = mnist.test.labels
