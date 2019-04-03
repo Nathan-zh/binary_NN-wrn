@@ -33,7 +33,7 @@ pred = binary_layer.dense(x, units=10)
 loss = tf.losses.softmax_cross_entropy(outputs, pred)
 tf.summary.scalar('loss', loss)
 
-l_r = 1e-3
+l_r = 1e-4
 optimizer = tf.train.AdamOptimizer(learning_rate=l_r)
 grads = optimizer.compute_gradients(loss, tf.trainable_variables())
 train = optimizer.apply_gradients(grads)
