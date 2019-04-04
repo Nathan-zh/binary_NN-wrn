@@ -26,9 +26,9 @@ x = tf.nn.tanh(x)
 x = tf.layers.batch_normalization(x)
 
 x = tf.layers.conv2d(inputs=inputs,
-                     filters=32,
-                     kernel_size=(5, 5),
-                     strides=(2, 2))
+                     filters=64,
+                     kernel_size=(7, 7),
+                     strides=(3, 3))
 x = tf.nn.tanh(x)
 x = tf.layers.batch_normalization(x)
 
@@ -57,7 +57,7 @@ pred = tf.layers.dense(x, units=10)
 loss = tf.losses.softmax_cross_entropy(outputs, pred)
 tf.summary.scalar('loss', loss)
 
-train = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(loss)
+train = tf.train.AdamOptimizer(learning_rate=5*1e-5).minimize(loss)
 correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(outputs, 1))
 
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
@@ -69,7 +69,7 @@ val_writer = tf.summary.FileWriter('./logdir/val', accuracy.graph)
 saver = tf.train.Saver()
 
 batch_size = 200
-epochs = 500
+epochs = 5000
 old_acc = 0
 
 with tf.Session() as sess:
@@ -95,7 +95,9 @@ with tf.Session() as sess:
 
         if val_acc > old_acc:
             old_acc = val_acc
-            saver.save(sess, './model/final.ckpt')
+            saver.save(sess, './model/final1.ckpt')
+	if train_loss == 0:
+		break
 
 print('*****************Training End!*****************')
 train_writer.close()
