@@ -27,14 +27,14 @@ x = binary_layer.conv2d(inputs=inputs,
                      kernel_size=(3, 3),
                      strides=(1, 1),
                      padding='same')
-x = tf.square(x)
+x = tf.nn.tanh(x)
 #x = tf.layers.batch_normalization(x)
 
 x = binary_layer.conv2d(inputs=inputs,
                      filters=64,
                      kernel_size=(7, 7),
                      strides=(3, 3))
-x = tf.square(x)
+x = tf.nn.tanh(x)
 #x = tf.layers.batch_normalization(x)
 
 x = tf.transpose(x, perm=[0, 3, 1, 2])
@@ -43,17 +43,17 @@ x = tf.layers.flatten(x)
 x = tf.layers.dropout(x, 0.4)
 
 x = binary_layer.dense(x, units=2048)
-x = tf.square(x)
+x = tf.nn.tanh(x)
 #x = tf.layers.batch_normalization(x)
 x = tf.layers.dropout(x, 0.5)
 
 x = binary_layer.dense(x, units=512)
-x = tf.square(x)
+x = tf.nn.tanh(x)
 #x = tf.layers.batch_normalization(x)
 x = tf.layers.dropout(x, 0.4)
 
 x = binary_layer.dense(x, units=128)
-x = tf.square(x)
+x = tf.nn.tanh(x)
 #x = tf.layers.batch_normalization(x)
 x = tf.layers.dropout(x, 0.3)
 
@@ -62,9 +62,9 @@ pred = binary_layer.dense(x, units=10)
 loss = tf.losses.softmax_cross_entropy(outputs, pred)
 tf.summary.scalar('loss', loss)
 
-start_lr = 1e-3
+start_lr = 1e-4
 global_step = tf.Variable(0, trainable=False)
-l_r = tf.train.exponential_decay(start_lr, global_step, 5500, 0.96, staircase=True)
+l_r = tf.train.exponential_decay(start_lr, global_step, 5000, 0.96, staircase=True)
 optimizer = tf.train.AdamOptimizer(learning_rate=l_r)
 grads = optimizer.compute_gradients(loss, tf.trainable_variables())
 train = optimizer.apply_gradients(grads, global_step=global_step)
@@ -79,7 +79,7 @@ val_writer = tf.summary.FileWriter('./logdir/val', accuracy.graph)
 saver = tf.train.Saver()
 
 # set hyper-parameters
-batch_size = 100
+batch_size = 128
 epochs = 1000
 old_acc = 0
 
