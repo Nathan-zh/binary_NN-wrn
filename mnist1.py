@@ -96,8 +96,8 @@ with tf.Session() as sess:
         if val_acc > old_acc:
             old_acc = val_acc
             saver.save(sess, './model/final1.ckpt')
-	if train_loss == 0:
-		break
+        if train_loss == 0:
+            break
 
 print('*****************Training End!*****************')
 train_writer.close()
