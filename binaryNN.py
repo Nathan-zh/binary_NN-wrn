@@ -26,6 +26,7 @@ x = binary_layer.conv2d(inputs=inputs, filters=4, kernel_size=(7, 7), strides=(3
 x = tf.nn.tanh(x)
 x = tf.transpose(x, perm=[0, 3, 1, 2])
 x = tf.layers.flatten(x)
+x = tf.layers.dropout(x, 0.4)
 x = binary_layer.dense(x, units=64)
 x = tf.nn.tanh(x)
 pred = binary_layer.dense(x, units=10)
@@ -51,7 +52,7 @@ saver = tf.train.Saver()
 
 # set hyper-parameters
 batch_size = 100
-epochs = 500
+epochs = 1000
 old_acc = 0
 
 # training and validation
