@@ -6,8 +6,8 @@ from tensorflow.python.layers.convolutional import Conv2D
 
 
 def binarization(W):
-    W = tf.clip_by_value(W, -1, 1)
-    Wb = tf.where(tf.greater_equal(W, 0.), tf.ones_like(W), -tf.ones_like(W))
+    Wc = tf.clip_by_value(W, -1, 1)
+    Wb = tf.where(tf.greater_equal(Wc, 0.), tf.ones_like(Wc), -tf.ones_like(Wc))
     return W + tf.stop_gradient(Wb - W)
 
 

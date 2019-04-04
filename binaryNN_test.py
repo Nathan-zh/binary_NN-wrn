@@ -24,7 +24,6 @@ pred = binary_layer.dense(x, units=10)
 
 correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(outputs, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
-#vars = tf.trainable_variables()
 
 print('*****************Test stage*****************')
 saver = tf.train.Saver()
