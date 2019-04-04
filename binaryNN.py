@@ -5,12 +5,12 @@ import b_layer as binary_layer
 
 # load dataset and preprocess
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
-
+'''
 for i in range(mnist.train.images.shape[0]):
     mnist.train.images[i] = mnist.train.images[i] * 2 - 1
 for i in range(mnist.validation.images.shape[0]):
     mnist.validation.images[i] = mnist.validation.images[i] * 2 - 1
-'''
+
 for i in range(mnist.train.labels.shape[0]):
     mnist.train.labels[i] = mnist.train.labels[i] * 2 - 1
 for i in range(mnist.validation.labels.shape[0]):
@@ -22,13 +22,41 @@ tf.reset_default_graph()
 inputs = tf.placeholder(tf.float32, [None, 28, 28, 1], name='input')
 outputs = tf.placeholder(tf.float32, [None, 10], name='output')
 
-x = binary_layer.conv2d(inputs=inputs, filters=4, kernel_size=(7, 7), strides=(3, 3))
-x = tf.nn.tanh(x)
+x = binary_layer.conv2d(inputs=inputs,
+                     filters=32,
+                     kernel_size=(3, 3),
+                     strides=(1, 1),
+                     padding='same')
+x = tf.square(x)
+#x = tf.layers.batch_normalization(x)
+
+x = binary_layer.conv2d(inputs=inputs,
+                     filters=64,
+                     kernel_size=(7, 7),
+                     strides=(3, 3))
+x = tf.square(x)
+#x = tf.layers.batch_normalization(x)
+
 x = tf.transpose(x, perm=[0, 3, 1, 2])
 x = tf.layers.flatten(x)
+
 x = tf.layers.dropout(x, 0.4)
-x = binary_layer.dense(x, units=64)
-x = tf.nn.tanh(x)
+
+x = binary_layer.dense(x, units=2048)
+x = tf.square(x)
+#x = tf.layers.batch_normalization(x)
+x = tf.layers.dropout(x, 0.5)
+
+x = binary_layer.dense(x, units=512)
+x = tf.square(x)
+#x = tf.layers.batch_normalization(x)
+x = tf.layers.dropout(x, 0.4)
+
+x = binary_layer.dense(x, units=128)
+x = tf.square(x)
+#x = tf.layers.batch_normalization(x)
+x = tf.layers.dropout(x, 0.3)
+
 pred = binary_layer.dense(x, units=10)
 
 loss = tf.losses.softmax_cross_entropy(outputs, pred)
