@@ -16,45 +16,46 @@ for i in range(mnist.train.labels.shape[0]):
 for i in range(mnist.validation.labels.shape[0]):
     mnist.validation.labels[i] = mnist.validation.labels[i] * 2 - 1
 '''
-
 # tensor graph
 tf.reset_default_graph()
 inputs = tf.placeholder(tf.float32, [None, 28, 28, 1], name='input')
 outputs = tf.placeholder(tf.float32, [None, 10], name='output')
 
+# Layer 1: conv
 x = binary_layer.conv2d(inputs=inputs,
-                     filters=32,
-                     kernel_size=(3, 3),
-                     strides=(1, 1),
-                     padding='same')
-x = tf.nn.tanh(x)
-#x = tf.layers.batch_normalization(x)
+                        filters=32,
+                        kernel_size=(3, 3),
+                        strides=(1, 1),
+                        padding='same')
+x = binary_layer.batch_normalization(x)
+x = tf.layers.dropout(x, 0.5)
 
+# Layer 2: conv
 x = binary_layer.conv2d(inputs=inputs,
-                     filters=64,
-                     kernel_size=(7, 7),
-                     strides=(3, 3))
-x = tf.nn.tanh(x)
-#x = tf.layers.batch_normalization(x)
+                        filters=64,
+                        kernel_size=(7, 7),
+                        strides=(3, 3))
+x = tf.square(x)
+x = tf.layers.batch_normalization(x)
+x = tf.layers.dropout(x, 0.4)
 
 x = tf.transpose(x, perm=[0, 3, 1, 2])
 x = tf.layers.flatten(x)
 
-x = tf.layers.dropout(x, 0.4)
-
+# Layer 3: FC
 x = binary_layer.dense(x, units=2048)
-x = tf.nn.tanh(x)
-#x = tf.layers.batch_normalization(x)
+x = binary_layer.batch_normalization(x)
 x = tf.layers.dropout(x, 0.5)
 
+# Layer 4: FC
 x = binary_layer.dense(x, units=512)
-x = tf.nn.tanh(x)
-#x = tf.layers.batch_normalization(x)
+x = binary_layer.batch_normalization(x)
 x = tf.layers.dropout(x, 0.4)
 
+# Layer 5: FC
 x = binary_layer.dense(x, units=128)
-x = tf.nn.tanh(x)
-#x = tf.layers.batch_normalization(x)
+x = tf.square(x)
+x = tf.layers.batch_normalization(x)
 x = tf.layers.dropout(x, 0.3)
 
 pred = binary_layer.dense(x, units=10)
@@ -62,7 +63,7 @@ pred = binary_layer.dense(x, units=10)
 loss = tf.losses.softmax_cross_entropy(outputs, pred)
 tf.summary.scalar('loss', loss)
 
-start_lr = 1e-4
+start_lr = 1e-3
 global_step = tf.Variable(0, trainable=False)
 l_r = tf.train.exponential_decay(start_lr, global_step, 5000, 0.96, staircase=True)
 optimizer = tf.train.AdamOptimizer(learning_rate=l_r)
