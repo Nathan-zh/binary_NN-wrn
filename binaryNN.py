@@ -1,6 +1,7 @@
 from tensorflow.examples.tutorials.mnist import input_data
 import tensorflow as tf
 import numpy as np
+import time
 import b_layer as binary_layer
 
 # load dataset and preprocess
@@ -24,19 +25,18 @@ outputs = tf.placeholder(tf.float32, [None, 10], name='output')
 # Layer 1: conv
 x = binary_layer.conv2d(inputs=inputs,
                         filters=32,
-                        kernel_size=(3, 3),
-                        strides=(1, 1),
-                        padding='same')
-x = binary_layer.batch_normalization(x)
+                        kernel_size=(7, 7),
+                        strides=(3, 3))
+x = tf.layers.batch_normalization(x)
+x = tf.square(x)
 x = tf.layers.dropout(x, 0.5)
 
 # Layer 2: conv
-x = binary_layer.conv2d(inputs=inputs,
+x = binary_layer.conv2d(inputs=x,
                         filters=64,
-                        kernel_size=(7, 7),
-                        strides=(3, 3))
-x = tf.square(x)
-x = tf.layers.batch_normalization(x)
+                        kernel_size=(3, 3),
+                        strides=(1, 1))
+x = binary_layer.batch_normalization(x)
 x = tf.layers.dropout(x, 0.4)
 
 x = tf.transpose(x, perm=[0, 3, 1, 2])
@@ -44,7 +44,8 @@ x = tf.layers.flatten(x)
 
 # Layer 3: FC
 x = binary_layer.dense(x, units=2048)
-x = binary_layer.batch_normalization(x)
+x = tf.layers.batch_normalization(x)
+x = tf.square(x)
 x = tf.layers.dropout(x, 0.5)
 
 # Layer 4: FC
@@ -54,8 +55,7 @@ x = tf.layers.dropout(x, 0.4)
 
 # Layer 5: FC
 x = binary_layer.dense(x, units=128)
-x = tf.square(x)
-x = tf.layers.batch_normalization(x)
+x = binary_layer.batch_normalization(x)
 x = tf.layers.dropout(x, 0.3)
 
 pred = binary_layer.dense(x, units=10)
@@ -75,8 +75,6 @@ accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 tf.summary.scalar('accuracy', accuracy)
 
 merged = tf.summary.merge_all()
-train_writer = tf.summary.FileWriter('./logdir/train', accuracy.graph)
-val_writer = tf.summary.FileWriter('./logdir/val', accuracy.graph)
 saver = tf.train.Saver()
 
 # set hyper-parameters
@@ -87,8 +85,11 @@ old_acc = 0
 # training and validation
 with tf.Session() as sess:
     print('*****************Training Start!*****************')
+    train_writer = tf.summary.FileWriter('./logdir_bin/train', sess.graph)
+    val_writer = tf.summary.FileWriter('./logdir_bin/val', sess.graph)
     sess.run(tf.global_variables_initializer())
     for m in range(epochs):
+        start = time.time()
         iterations = int(mnist.train.num_examples/batch_size)
         for i in range(iterations):
 
@@ -101,13 +102,16 @@ with tf.Session() as sess:
         val_y = mnist.validation.labels
         val_acc, summary = sess.run([accuracy, merged], {inputs: val_x, outputs: val_y})
         val_writer.add_summary(summary, m)
-        print('Epoch: {}'.format(m + 1),
-              'Train_loss: {:.3f}'.format(loss_train),
-              'Val_accuracy: {:.3f}'.format(val_acc))
 
         if val_acc > old_acc:
             old_acc = val_acc
-            saver.save(sess, './model/final.ckpt')
+            saver.save(sess, './model/final_bin.ckpt')
+
+        end = time.time()
+        print('Epoch: {}'.format(m + 1),
+              'Train_loss: {:.3f}'.format(loss_train),
+              'Val_accuracy: {:.3f}'.format(val_acc),
+              'Time consumed : {:.3f} s'.format(end - start))
 
 print('*****************Training End!*****************')
 train_writer.close()
